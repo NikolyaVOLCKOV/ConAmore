@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Con Amore</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #EDF2F4;
+            color: #2B2D42;
+        }
+        header {
+            background-color: #2B2D42;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+        }
+        header nav a {
+            color: #EDF2F4;
+            text-decoration: none;
+            margin: 0 10px;
+        }
+        header nav a:hover {
+            text-decoration: underline;
+        }
+        .search-bar {
+            display: flex;
+            align-items: center;
+        }
+        .search-bar input {
+            padding: 5px;
+            margin-right: 5px;
+        }
+        .slider {
+            background-color: #8D99AE;
+            height: 200px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 24px;
+        }
+        .block {
+            padding: 20px;
+        }
+        .block-title {
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+        .products {
+            display: flex;
+            gap: 10px;
+        }
+        .product-card {
+            background-color: white;
+            border: 1px solid #8D99AE;
+            padding: 10px;
+            text-align: center;
+            flex: 1;
+        }
+        footer {
+            background-color: #2B2D42;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        footer a {
+            color: #EDF2F4;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="logo">Con Amore</div>
+    <nav>
+        <a href="#">Главная</a>
+        <a href="#">Каталог</a>
+        <a href="#">О нас</a>
+        <a href="#">Контакты</a>
+    </nav>
+    <div class="search-bar">
+        <input type="text" placeholder="Поиск">
+        <button>Искать</button>
+    </div>
+    <div>
+        <button>Войти</button>
+        <button>Корзина</button>
+    </div>
+</header>
+
+<div class="slider">
+    Слайдер с акциями или новинками
+</div>
+
+<div class="block">
+    <div class="block-title">Популярные товары</div>
+    <div class="products">
+        <div class="product-card">Товар 1</div>
+        <div class="product-card">Товар 2</div>
+        <div class="product-card">Товар 3</div>
+    </div>
+</div>
+
+<div class="block">
+    <div class="block-title">Новинки</div>
+    <div class="products">
+        <div class="product-card">Новинка 1</div>
+        <div class="product-card">Новинка 2</div>
+        <div class="product-card">Новинка 3</div>
+    </div>
+</div>
+
+<div class="block">
+    <div class="block-title">О нас</div>
+    <p>Con Amore — это магазин, где каждый найдет что-то для себя. Мы гордимся качеством наших товаров и обслуживанием клиентов.</p>
+</div>
+
+<div class="block">
+    <div class="block-title">Отзывы покупателей</div>
+    <p>"Отличный сервис и качественные товары!"</p>
+    <p>"Удобно, быстро, красиво!"</p>
+</div>
+
+<footer>
+    <p>Подпишитесь на нас в социальных сетях:</p>
+    <a href="#">whatsapp</a> | <a href="#">VK</a> | <a href="#">Telegram</a>
+    <p>Контакты: info@conamore.ru</p>
+</footer>
+
+</body>
+</html>

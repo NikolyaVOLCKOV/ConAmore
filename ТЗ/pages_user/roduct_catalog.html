@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Каталог товаров</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #EDF2F4;
+      color: #2B2D42;
+    }
+    header {
+      background-color: #2B2D42;
+      color: white;
+      padding: 10px 20px;
+    }
+    header a {
+      color: #EDF2F4;
+      text-decoration: none;
+      margin-right: 10px;
+    }
+    .container {
+      display: flex;
+      padding: 20px;
+    }
+    .sidebar {
+      width: 250px;
+      background-color: #8D99AE;
+      padding: 20px;
+      border-radius: 5px;
+    }
+    .sidebar h3 {
+      color: white;
+      margin-bottom: 10px;
+    }
+    .category-tree ul {
+      list-style: none;
+      padding-left: 15px;
+    }
+    .category-tree li {
+      margin-bottom: 5px;
+    }
+    .filter-group {
+      margin-bottom: 20px;
+    }
+    .filter-group label {
+      display: block;
+      margin-bottom: 5px;
+    }
+    .content {
+      flex: 1;
+      margin-left: 20px;
+    }
+    .products {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .product-card {
+      background-color: white;
+      border: 1px solid #8D99AE;
+      border-radius: 5px;
+      padding: 10px;
+      text-align: center;
+      flex: 1 1 calc(33.333% - 20px);
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <a href="index.html">Главная</a>
+  <a href="#">Каталог</a>
+  <a href="#">О нас</a>
+  <a href="#">Контакты</a>
+</header>
+
+<div class="container">
+  <!-- Sidebar: Categories and Filters -->
+  <aside class="sidebar">
+    <h3>Категории</h3>
+    <div class="category-tree">
+      <ul>
+        <li>Одежда
+          <ul>
+            <li>Женская</li>
+            <li>Мужская</li>
+            <li>Детская</li>
+          </ul>
+        </li>
+        <li>Обувь
+          <ul>
+            <li>Кроссовки</li>
+            <li>Туфли</li>
+            <li>Сандалии</li>
+          </ul>
+        </li>
+        <li>Аксессуары
+          <ul>
+            <li>Часы</li>
+            <li>Сумки</li>
+            <li>Очки</li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+
+    <h3>Фильтры</h3>
+    <div class="filter-group">
+      <label for="price">Цена</label>
+      <input type="range" id="price" name="price" min="0" max="10000" step="100">
+    </div>
+    <div class="filter-group">
+      <label for="color">Цвет</label>
+      <select id="color" name="color">
+        <option value="all">Все</option>
+        <option value="red">Красный</option>
+        <option value="blue">Синий</option>
+        <option value="green">Зеленый</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label for="size">Размер</label>
+      <select id="size" name="size">
+        <option value="all">Все</option>
+        <option value="s">S</option>
+        <option value="m">M</option>
+        <option value="l">L</option>
+      </select>
+    </div>
+    <button>Применить фильтры</button>
+  </aside>
+
+  <!-- Main Content: Products -->
+  <main class="content">
+    <h2>Товары</h2>
+    <div class="products">
+      <div class="product-card">Товар 1</div>
+      <div class="product-card">Товар 2</div>
+      <div class="product-card">Товар 3</div>
+      <div class="product-card">Товар 4</div>
+      <div class="product-card">Товар 5</div>
+      <div class="product-card">Товар 6</div>
+    </div>
+  </main>
+</div>
+
+</body>
+</html>

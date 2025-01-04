@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Оформление заказа</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #EDF2F4;
+            color: #2B2D42;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #8D99AE;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        .order-summary {
+            margin-top: 20px;
+        }
+        .order-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #8D99AE;
+        }
+        .order-item:last-child {
+            border-bottom: none;
+        }
+        .total {
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 20px;
+            text-align: right;
+        }
+        .delivery-methods {
+            margin-top: 20px;
+        }
+        .delivery-methods input {
+            margin-right: 10px;
+        }
+        .submit-button {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #2B2D42;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            text-align: center;
+            cursor: pointer;
+        }
+        .submit-button:hover {
+            background-color: #8D99AE;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Оформление заказа</h1>
+
+    <!-- Форма ввода данных покупателя -->
+    <form id="order-form">
+        <div class="form-group">
+            <label for="name">Имя и фамилия</label>
+            <input type="text" id="name" name="name" placeholder="Введите ваше имя и фамилию" required>
+        </div>
+        <div class="form-group">
+            <label for="phone">Телефон</label>
+            <input type="tel" id="phone" name="phone" placeholder="Введите ваш номер телефона" required>
+        </div>
+        <div class="form-group">
+            <label for="email">Электронная почта</label>
+            <input type="email" id="email" name="email" placeholder="Введите вашу электронную почту" required>
+        </div>
+
+    </form>
+
+    <!-- Список товаров для оформления -->
+    <div class="order-summary">
+        <h2>Ваш заказ</h2>
+        <div class="order-item">
+            <span>Товар 1</span>
+            <span>5 000 ₽</span>
+        </div>
+        <div class="order-item">
+            <span>Товар 2</span>
+            <span>3 000 ₽</span>
+        </div>
+        <div class="total">Итого: 8 000 ₽</div>
+    </div>
+
+    <!-- Способ получения -->
+    <div class="delivery-methods">
+        <h2>Способ получения: Самовывоз</h2><h2>Способ оплаты: при получении</h2>
+    </div>
+    <div class="delivery-methods">
+
+    </div>
+    <!-- Кнопка оформления заказа -->
+    <a href="#" class="submit-button" onclick="submitOrder()">Оформить заказ</a>
+</div>
+
+<script>
+    function submitOrder() {
+        const form = document.getElementById('order-form');
+        if (!form.checkValidity()) {
+            alert('Пожалуйста, заполните все обязательные поля!');
+            return;
+        }
+
+        const name = document.getElementById('name').value;
+        const phone = document.getElementById('phone').value;
+        const email = document.getElementById('email').value;
+        const address = document.getElementById('address').value;
+        const delivery = document.querySelector('input[name="delivery"]:checked')?.value;
+
+        if (!delivery) {
+            alert('Пожалуйста, выберите способ получения заказа!');
+            return;
+        }
+
+        alert(`Спасибо за ваш заказ, ${name}!\n
+    Телефон: ${phone}\n
+    Почта: ${email}\n
+    Адрес: ${address || 'не указан'}\n
+    Способ получения: ${delivery === 'pickup' ? 'Самовывоз' : delivery === 'courier' ? 'Курьерская доставка' : 'Доставка почтой'}`);
+    }
+</script>
+
+</body>
+</html>

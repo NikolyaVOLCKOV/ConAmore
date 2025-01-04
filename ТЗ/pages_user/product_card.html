@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Карточка товара</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #EDF2F4;
+            color: #2B2D42;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .product-card {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        .product-images {
+            flex: 1;
+            max-width: 50%;
+        }
+        .product-images img {
+            width: 100%;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+        .product-details {
+            flex: 1;
+            max-width: 50%;
+        }
+        .product-details h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        .product-details p {
+            margin-bottom: 10px;
+        }
+        .product-details .price {
+            font-size: 20px;
+            font-weight: bold;
+            color: #8D99AE;
+            margin-bottom: 20px;
+        }
+        .add-to-cart {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #2B2D42;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .tabs {
+            margin-top: 20px;
+        }
+        .tabs button {
+            padding: 10px 20px;
+            background-color: #EDF2F4;
+            border: 1px solid #8D99AE;
+            margin-right: 5px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        .tabs button.active {
+            background-color: #8D99AE;
+            color: white;
+        }
+        .tab-content {
+            margin-top: 20px;
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="product-card">
+        <!-- Фотографии товара -->
+        <div class="product-images">
+            <img src="product1.jpg" alt="Фото товара 1">
+        </div>
+
+        <!-- Описание товара -->
+        <div class="product-details">
+            <h1>Название товара</h1>
+            <p class="price">Цена: 5 000 ₽</p>
+            <p>Краткое описание товара. Например: "Стильные кроссовки для повседневной носки."</p>
+            <a href="#" class="add-to-cart">Добавить в корзину</a>
+        </div>
+    </div>
+
+    <!-- Вкладки: описание, характеристики, отзывы -->
+    <div class="tabs">
+        <button class="tab-button active" data-tab="description">Описание</button>
+        <button class="tab-button" data-tab="characteristics">Характеристики</button>
+        <button class="tab-button" data-tab="reviews">Отзывы</button>
+    </div>
+    <div class="tab-content active" id="description">
+        <p>Детальное описание товара. Например, информация о материалах, предназначении и т.д.</p>
+    </div>
+    <div class="tab-content" id="characteristics">
+        <p>Характеристики товара:</p>
+        <ul>
+            <li>Материал: Кожа</li>
+            <li>Размер: 42</li>
+            <li>Цвет: Черный</li>
+        </ul>
+    </div>
+    <div class="tab-content" id="reviews">
+        <p>Отзывы покупателей:</p>
+        <ul>
+            <li>"Отличный товар, рекомендую!" — Иван</li>
+            <li>"Качество соответствует цене." — Ольга</li>
+        </ul>
+    </div>
+</div>
+
+<script>
+    // Смена вкладок
+    const tabButtons = document.querySelectorAll(".tab-button");
+    const tabContents = document.querySelectorAll(".tab-content");
+
+    tabButtons.forEach(button => {
+        button.addEventListener("click", () => {
+            // Удаляем класс active у всех кнопок и содержимого
+            tabButtons.forEach(btn => btn.classList.remove("active"));
+            tabContents.forEach(content => content.classList.remove("active"));
+
+            // Добавляем класс active выбранной вкладке
+            button.classList.add("active");
+            const tabId = button.getAttribute("data-tab");
+            document.getElementById(tabId).classList.add("active");
+        });
+    });
+</script>
+
+</body>
+</html>
