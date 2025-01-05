@@ -35,6 +35,7 @@ app.use((req, res, next) => {
   app.use(helmet.noSniff())
 
 app.use('/auth', require("./routers/auth"))
+app.use('/products', require("./routers/products"))
 
 app.listen(5000, (err) => {
   if (err) {
