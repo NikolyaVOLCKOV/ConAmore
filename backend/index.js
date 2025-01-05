@@ -5,7 +5,7 @@ const app = express()
 
 app.use(cors({
     host: 'http://localhost:5000',
-    origin: 'http://localhost:3001', 
+    origin: 'http://localhost:3001', //нало поменять маршу
     methods: 'GET, POST, PUT, DELETE, OPTIONS', 
     allowedHeaders: ['Authorization', 'refresh_token', 'Content-Type'],
     credentials: true 
@@ -35,8 +35,6 @@ app.use((req, res, next) => {
   app.use(helmet.noSniff())
 
 app.use('/auth', require("./routers/auth"))
-app.use('/user', require("./routers/user"))
-app.use('/friends', require("./routers/friends"))
 
 app.listen(5000, (err) => {
   if (err) {
