@@ -24,6 +24,21 @@ async function SendEmail(email, username, id) {
 
   }
 
+async function SendEmailForgotPassword(email) {
+  try{
+  const info = await transporter.sendMail({
+    from: 'petrlensin011@gmail.com', // Заменить
+    to: email, 
+    subject: "Hello ✔",
+    text: "Hello world?", 
+    html: `<p>Перейдите по <a href="http://localhost:3001/forgotpassword" target="_blank">этой ссылке</a> для дальнейших действий.</p>` // Заменить
+  })}
+  catch(err){
+    console.log(err)
+  }
+}
+
 module.exports = {
-    SendEmail
+    SendEmail,
+    SendEmailForgotPassword,
 }
