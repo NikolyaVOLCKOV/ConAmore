@@ -150,6 +150,33 @@ class Product_Controllers{
         }
     }
 
+    //----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    //Фильтры товаров
+    
+    async ProductFilter(req, res) {
+        const client = await pool.connect();
+        const { product_features } = req.body; 
+        console.log(product_features)
+
+        if (!product_features || product_features.length === 0) {
+            return res.status(400).json({ message: "Не указаны фильтры для поиска" });
+        }
+    
+        try {
+            const result = await client.query('SELECT * FROM products WHERE (SELECT COUNT(*) FROM unnest(product_features) AS feature WHERE feature = ANY($1::text[]))= array_length($1::text[], 1)',
+                [product_features]
+            );
+    
+            return res.status(200).json(result.rows);
+        } catch (err) {
+            console.error("Ошибка выполнения запроса:", err);
+            return res.status(500).json({ message: "Произошла ошибка сервера" });
+        }
+        finally{
+            client.release()
+        }
+    }
+
 }
 
 module.exports = new Product_Controllers();
