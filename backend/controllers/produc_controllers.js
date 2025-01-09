@@ -155,16 +155,16 @@ class Product_Controllers{
     
     async ProductFilter(req, res) {
         const client = await pool.connect();
-        const { product_features } = req.body; 
-        console.log(product_features)
+        const { filters } = req.body; 
+        const filters_length = filters.length;
 
-        if (!product_features || product_features.length === 0) {
+        if (!filters || filters.length === 0) {
             return res.status(400).json({ message: "Не указаны фильтры для поиска" });
         }
     
         try {
-            const result = await client.query('SELECT * FROM products WHERE (SELECT COUNT(*) FROM unnest(product_features) AS feature WHERE feature = ANY($1::text[]))= array_length($1::text[], 1)',
-                [product_features]
+            const result = await client.query('SELECT p.article, p.product_name, array_agg(fe.feature_value) AS feature_value FROM product_features pf JOIN products p ON pf.article = p.article JOIN features_ex fe ON pf.feature_value_id = fe.feature_value_id WHERE pf.feature_value_id = ANY($1::int[])GROUP BY p.article, p.product_name HAVING COUNT(DISTINCT pf.feature_value_id) = $2;',
+                [filters, filters_length]
             );
     
             return res.status(200).json(result.rows);
@@ -176,6 +176,10 @@ class Product_Controllers{
             client.release()
         }
     }
+
+    //-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    //Поиск товаров
+
 
 }
 
