@@ -1,24 +1,26 @@
 import logo from './logo.svg';
 import './App.css';
+import { Layout } from 'antd';
+import AppHeader from './compoents/mainPage/Header';
+import Slider from './compoents/mainPage/Slider';
+import Popular from './compoents/mainPage/Popular';
+import New from './compoents/mainPage/Popular';
+import About from './compoents/mainPage/About';
+import AppFooter from './compoents/mainPage/Footer';
+
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <Layout>
+    <AppHeader />
+    <Slider />
+    <div style={{ padding: "20px" }}>
+      <Popular />
+      <New />
+      <About />
     </div>
+    <AppFooter />
+  </Layout>
   );
 }
 
