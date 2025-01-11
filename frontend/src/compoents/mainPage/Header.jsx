@@ -1,23 +1,100 @@
 import React from "react";
-import { Layout, Menu, Input, Button } from "antd";
+import { Layout, Menu, Input, Button, Space } from "antd";
+import { ShoppingCartOutlined, UserOutlined } from "@ant-design/icons";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom"; // для навигации между страницами
+
 const { Header } = Layout;
 
 const AppHeader = () => {
+  const [isLoggedIn, setIsLoggedIn] = useState(false); // Заглушка для проверки авторизации
+  const navigate = useNavigate(); // Используем для перехода между страницами
+
   return (
-    <Header style={{ display: "flex", justifyContent: "space-between", alignItems: "center", background: "#2B2D42" }}>
-      <div style={{ color: "white", fontSize: "20px", fontWeight: "bold" }}>Con Amore</div>
-      <Menu mode="horizontal" theme="dark" style={{ flex: 1, marginLeft: "20px" }}>
-        <Menu.Item key="1">Главная</Menu.Item>
-        <Menu.Item key="2">Каталог</Menu.Item>
-        <Menu.Item key="3">О нас</Menu.Item>
-        <Menu.Item key="4">Контакты</Menu.Item>
-      </Menu>
-      <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-        <Input placeholder="Поиск" style={{ width: 200 }} />
-        <Button type="primary">Искать</Button>
-        <Button type="default">Войти</Button>
-        <Button type="default">Корзина</Button>
+    <Header
+      style={{
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        background: "#2B2D42",
+      }}
+    >
+      {/* Логотип */}
+      <div
+        style={{
+          color: "white",
+          fontSize: "20px",
+          fontWeight: "bold",
+          cursor: "pointer",
+        }}
+        onClick={() => navigate("/")} // Переход на главную страницу
+      >
+        Con Amore
       </div>
+
+      {/* каталог */}
+      <Button
+        type="default"
+        style={{ marginLeft: "40px" }}
+        onClick={() => navigate("/catalog")} // Переход на страницу каталога
+      >
+        Каталог
+      </Button>
+
+      {/* Поиск */}
+      <div style={{ flex: 1, display: "flex", justifyContent: "center" }}>
+        <Input.Search
+          placeholder="Поиск товаров"
+          allowClear
+          enterButton="Искать"
+          size="large"
+          onSearch={(value) => {
+            console.log("Поиск:", value); // Заглушка: можно реализовать поиск через API
+          }}
+          style={{ maxWidth: "400px" }}
+        />
+      </div>
+
+      {/* Контактный блок */}
+      <div
+        style={{
+          marginRight: "20px",
+          color: "white",
+          textAlign: "center",
+          display: "flex",
+          flexDirection: "column", 
+          justifyContent: "center", 
+          lineHeight: "1.2", 
+        }}
+      >
+        <div>г. Липецк, ул. П.И. Смородина, 13А</div>
+        <div>+7 (904) 295-03-10</div>
+      </div>
+
+      {/* Кнопки входа/личного кабинета и корзина */}
+      <Space>
+        {isLoggedIn ? (
+          <Button
+            type="default"
+            icon={<UserOutlined />}
+            onClick={() => navigate("/profile")} // Переход в личный кабинет
+          >
+            Личный кабинет
+          </Button>
+        ) : (
+          <Button
+            type="default"
+            onClick={() => navigate("/login")} // Переход на страницу входа
+          >
+            Войти
+          </Button>
+        )}
+        <Button
+          type="default"
+          icon={<ShoppingCartOutlined />}
+          onClick={() => navigate("/cart")} // Переход на страницу корзины
+        />
+      </Space>
     </Header>
   );
 };
