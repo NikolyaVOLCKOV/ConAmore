@@ -1,5 +1,6 @@
 const { pool } = require('../config/db.js');
 
+
 class Product_Controllers{
 
     async AddProduct(req, res){ //Я полагаю это для админки?
@@ -68,6 +69,38 @@ class Product_Controllers{
         finally{
             client.release();
         }
+    }
+    
+    async AddImages(req, res){
+        const client = await pool.connect();
+        const article = req.body.article;
+
+        try {
+            await client.query('BEGIN');
+            
+            // Подготовка параметризованного запроса
+            const query = `
+              UPDATE products SET image_name = $1, image_buffer = $2
+              WHERE article = $3
+            `;
+        
+            // Обработка каждого файла в массиве
+            for (const file of req.files) {
+                console.log(req.files);
+                console.log(file.originalname)
+                console.log(file.buffer)
+              await client.query(query, [file.originalname, file.buffer, article]);
+            }
+        
+            await client.query('COMMIT');
+            res.send('Файлы успешно загружены и сохранены в базе данных');
+          } catch (err) {
+            await client.query('ROLLBACK');
+            console.error(err);
+            res.status(500).send('Ошибка при сохранении файлов');
+          } finally {
+            client.release();
+          }
     }
 
 }

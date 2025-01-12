@@ -1,7 +1,9 @@
 const express = require('express')
 const helmet = require('helmet');
-const cors = require('cors')
-const app = express()
+const cors = require('cors');
+
+const app = express();
+
 
 app.use(cors({
     host: 'http://localhost:5000',
