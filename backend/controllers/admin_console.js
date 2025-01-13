@@ -80,16 +80,16 @@ class Product_Controllers{
             
             // Подготовка параметризованного запроса
             const query = `
-              UPDATE products SET image_name = $1, image_buffer = $2
-              WHERE article = $3
+              UPDATE product_images SET image_name = $1, image_buffer = $2, image_type = $3
+              WHERE product_article = $4
             `;
         
             // Обработка каждого файла в массиве
             for (const file of req.files) {
-                console.log(req.files);
-                console.log(file.originalname)
-                console.log(file.buffer)
-              await client.query(query, [file.originalname, file.buffer, article]);
+                // console.log(req.files);
+                // console.log(file.originalname)
+                // console.log(file.buffer)
+              await client.query(query, [file.originalname, file.buffer, file.mimetype, article]);
             }
         
             await client.query('COMMIT');
@@ -101,6 +101,30 @@ class Product_Controllers{
           } finally {
             client.release();
           }
+    }
+
+    async ReturnImages(req, res){
+        const client = await pool.connect();
+        const article = req.body.article;
+
+        try{
+            const result = await client.query('SELECT image_buffer, image_type FROM product_images WHERE product_article = $1',
+                [article]
+            )
+
+            const images = result.rows.map(row =>({
+                ImageData: row.image_buffer,
+                ImageType: row.image_type
+            }))
+            res.json(images)         
+        }
+        catch(err){
+            console.error(err)
+        }
+        finally{
+            client.release()
+        }
+
     }
 
 }
