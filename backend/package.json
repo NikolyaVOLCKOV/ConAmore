@@ -4,7 +4,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon Z:/ConAmore/ConAmore/index.js"
+    "start": "nodemon npm run index.js"
   },
   "author": "",
   "license": "ISC",

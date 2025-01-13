@@ -7,7 +7,7 @@ const app = express();
 
 app.use(cors({
     host: 'http://localhost:5000',
-    origin: 'http://localhost:3001', //нало поменять маршу
+    origin: 'http://localhost:3000', //нало поменять маршу
     methods: 'GET, POST, PUT, DELETE, OPTIONS', 
     allowedHeaders: ['Authorization', 'refresh_token', 'Content-Type'],
     credentials: true 

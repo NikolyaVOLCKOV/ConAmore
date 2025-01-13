@@ -10,9 +10,9 @@ class Auth_and_Reg {
     async Register(req, res){
         const client = await pool.connect();
         const {name, phone, email, password} = req.body;
-        const password_hash = await PasswordHasher(password);
 
         try{
+            const password_hash = await PasswordHasher(password);
 
             const result = await client.query('INSERT INTO users (name, email, phone, password_hash) VALUES($1, $2, $3, $4) RETURNING id', 
                 [name, email, phone, password_hash]
@@ -22,11 +22,14 @@ class Auth_and_Reg {
             return res.status(200).json({ id: userId, message: 'Пользователь зарегистрирован' });
         }
         catch(err){
-            console.err("Ошибка при добавлении пользователя:", error);
+            console.log("Ошибка при добавлении пользователя:", err);
             if (err.code === '23505') {
               res.status(409).json({ message: 'Имя пользователя уже существует!' });
             } else {
-              res.status(500).json({ message: "Ошибка сервера" });
+                // TODO надо добавить обработчик ошибок
+              res.status(500).json({ message: "Ошибка сервера",
+                error: err
+               });
             }
         }
         finally{
@@ -62,7 +65,7 @@ class Auth_and_Reg {
             )
             const newToken = jwt.sign({username: decoded.id}, MAIL_SECRET, {expiresIn: '3s'})
             
-            res.redirect(`http://localhost:3001/success?newToken=${newToken}`) //ссылка должна быть другой 
+            res.redirect(`http://localhost:3000/success?newToken=${newToken}`) //ссылка должна быть другой 
         }
         catch(err){
             console.error(err)
@@ -71,6 +74,8 @@ class Auth_and_Reg {
             client.release()
         }
     }
+
+    //TODO СДЕЛАТЬ ВХОД ЧЕРЕЗ МЫЛО
     async Login(req, res){
         const client = await pool.connect();
         const {name, password} = req.body;
