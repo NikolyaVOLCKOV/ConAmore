@@ -74,14 +74,12 @@ class Product_Controllers{
     async AddImages(req, res){
         const client = await pool.connect();
         const article = req.body.article;
-
         try {
             await client.query('BEGIN');
             
             // Подготовка параметризованного запроса
             const query = `
-              UPDATE product_images SET image_name = $1, image_buffer = $2, image_type = $3
-              WHERE product_article = $4
+              INSERT INTO product_images (image_name, image_buffer, image_type, product_article) VALUES($1,$2,$3,$4)
             `;
         
             // Обработка каждого файла в массиве
