@@ -1,26 +1,17 @@
-import logo from './logo.svg';
-import './App.css';
-import { Layout } from 'antd';
-import AppHeader from './compoents/mainPage/Header';
-import Slider from './compoents/mainPage/Slider';
-import Popular from './compoents/mainPage/Popular';
-import New from './compoents/mainPage/Popular';
-import About from './compoents/mainPage/About';
-import AppFooter from './compoents/mainPage/Footer';
+import { Routes, Route } from "react-router-dom";
+import HomePage from "./pages/HomePage";
+import AppHeader from "./compoents/Header";
 
 
 function App() {
   return (
-    <Layout>
+    <>
     <AppHeader />
-    <Slider />
-    <div style={{ padding: "20px" }}>
-      <Popular />
-      <New />
-      <About />
-    </div>
-    <AppFooter />
-  </Layout>
+    <Routes>
+      <Route path="/" element = {<HomePage />} />
+    </Routes>
+
+    </>
   );
 }
 
