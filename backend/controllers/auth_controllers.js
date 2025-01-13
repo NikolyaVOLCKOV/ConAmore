@@ -7,6 +7,7 @@ const bcrypt = require('bcrypt');
 
 
 class Auth_and_Reg {
+    // регистрация
     async Register(req, res){
         const client = await pool.connect();
         const {name, phone, email, password} = req.body;
@@ -48,7 +49,7 @@ class Auth_and_Reg {
             console.error(err)
         }
     }
-
+    // подтверждение регистрации
     async ConfirmRegister(req, res){
         const client = await pool.connect();
         const verify_token = req.params.token;
@@ -74,20 +75,19 @@ class Auth_and_Reg {
             client.release()
         }
     }
-
-    //TODO СДЕЛАТЬ ВХОД ЧЕРЕЗ МЫЛО
-    async Login(req, res){
+    // логин
+    async Login(req, res){ 
         const client = await pool.connect();
-        const {name, password} = req.body;
-        const bdData = await GetData(name) 
+        const {email, password} = req.body;
+        const bdData = await GetData(email) 
 
         try{    
             if (!bdData || !bdData.id){
-                return res.status(404).json({message:"Пользователь не найден"});
+                return res.status(404).json({message:"Пользователь c данным Email не найден"});
             }
 
             if (bdData.confirm_reg === false){
-                return res.status(400).json({message:"Ваш аккаунт не подтверждён"});
+                return res.status(400).json({message:"Ваш аккаунт не подтверждён."});
             }
 
             const isPasswordMatch = await bcrypt.compare(password, bdData.password_hash);
@@ -98,7 +98,7 @@ class Auth_and_Reg {
     
                 // console.log('Токены при логине:',"Acess:",acess_token, "Refresh:",refresh_token);
                 return res.status(200).json({
-                    message: 'Пароль совпадает!',
+                    message: 'Успешный вход!',
                     acess_token,
                     refresh_token,
                     isConfirmed: bdData.confirm_reg,
@@ -116,7 +116,7 @@ class Auth_and_Reg {
             client.release()
         }
     }
-
+    // замена пароля через мыло
     async ForgotPasswordMailSendler (req, res) {
         const username = req.body.username;
         const bdData = await GetData(username);
@@ -136,7 +136,7 @@ class Auth_and_Reg {
             res.status(500).json({ message: "Ошибка сервера при отправке письма." });
           }
         };
-      
+      // замена пароля с клиента
       async ForgotPassword (req, res) {
         const client = await pool.connect();
         const token = req.body.token;

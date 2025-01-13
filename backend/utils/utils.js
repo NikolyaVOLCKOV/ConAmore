@@ -8,11 +8,11 @@ const PasswordHasher = async (password) =>{
     return hash
 }
 
-const GetData = async (username) =>{
+const GetData = async (mail) =>{
     const client = await pool.connect();
     try{
-        const result = await client.query('SELECT password_hash, id, name, role, confirm_reg, email FROM users WHERE name = $1',
-            [username]
+        const result = await client.query('SELECT name, password_hash, id, name, role, confirm_reg FROM users WHERE email = $1',
+            [mail]
         );
         return result.rows[0];
     }
