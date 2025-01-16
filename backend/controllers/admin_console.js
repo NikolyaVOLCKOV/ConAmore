@@ -1,5 +1,5 @@
 const { pool, sequelize } = require('../config/db.js');
-const { DataTypes } = require('sequelize');
+const { products } = require('../config/models.js');
 
 // Проверка соединения
 (async () => {
@@ -11,29 +11,7 @@ const { DataTypes } = require('sequelize');
     }
   })();
 
- const products = sequelize.define(
-    'products',
-    {
-        article:{
-            type: DataTypes.INTEGER,
-            defaultValue: sequelize.literal("nextval('users_id_seq'::regclass)"),
-            allowNull: false,
-            primaryKey: true
-        },
-        product_name: {type: DataTypes.TEXT,  allowNull: false},
-        product_description: {type: DataTypes.TEXT,  allowNull: false},
-    },
-    {
-        timestamps: false,
-        tableName: 'products'
-    }
- )
-
-//  sequelize.sync().then(result=>{
-//     console.log(result);
-//   })
-//   .catch(err=> console.log(err));
-
+// проверка синхронизации 
 sequelize.sync({ force: false })  // force: false означает, что таблицы не будут пересозданы
   .then(() => {
     console.log('Все модели синхронизированы с базой данных');

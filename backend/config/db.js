@@ -10,6 +10,7 @@ const pool = new Pool({
     database: 'Con_Amore'
 })
 
+// Это для того чтобы sequelize работал именно с нашкй бд
 const sequelize = new Sequelize({
     host: 'localhost',
     dialect: 'postgres',
