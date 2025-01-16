@@ -1,33 +1,97 @@
-const { pool } = require('../config/db.js');
+const { pool, sequelize } = require('../config/db.js');
+const { DataTypes } = require('sequelize');
 
+// Проверка соединения
+(async () => {
+    try {
+      await sequelize.authenticate();
+      console.log('Соединение с БД было успешно установлено(sequelize)');
+    } catch (e) {
+      console.log('Невозможно выполнить подключение к БД(sequelize): ', e);
+    }
+  })();
 
+ const products = sequelize.define(
+    'products',
+    {
+        article:{
+            type: DataTypes.INTEGER,
+            defaultValue: sequelize.literal("nextval('users_id_seq'::regclass)"),
+            allowNull: false,
+            primaryKey: true
+        },
+        product_name: {type: DataTypes.TEXT,  allowNull: false},
+        product_description: {type: DataTypes.TEXT,  allowNull: false},
+    },
+    {
+        timestamps: false,
+        tableName: 'products'
+    }
+ )
+
+//  sequelize.sync().then(result=>{
+//     console.log(result);
+//   })
+//   .catch(err=> console.log(err));
+
+sequelize.sync({ force: false })  // force: false означает, что таблицы не будут пересозданы
+  .then(() => {
+    console.log('Все модели синхронизированы с базой данных');
+  })
+  .catch((err) => {
+    console.error('Ошибка при синхронизации:', err);
+  });
+
+// TODO переписать всё с помощью ORM
 class Product_Controllers{
 
-    async AddProduct(req, res){ //Я полагаю это для админки?
-        const client = await pool.connect();
-        const {product_name, product_description, product_features} = req.body;
+    // async AddProduct(req, res){ 
+    //     const client = await pool.connect();
+    //     const {product_name, product_description, product_features} = req.body;
+
+    //     try{
+
+    //         if (!product_name || !product_description || !product_features){
+    //             return res.status(404).json({message: "Не все данные о товаре указаны"})
+    //         }
+
+    //         await client.query("INSERT INTO products (product_name, product_description, product_features) VALUES($1, $2, $3)", 
+    //             [product_name, product_description, product_features]
+    //         );
+
+    //         return res.status(200).json({message:"Товар успешно добавлен"});
+    //     }
+    //     catch(err){
+    //         console.error(err);
+    //     }
+    //     finally{
+    //         client.release();
+    //     }
+    // }
+
+    async AddProduct(req, res){ 
+        const {product_name, product_description} = req.body;
 
         try{
 
-            if (!product_name || !product_description || !product_features){
+            if (!product_name || !product_description){
                 return res.status(404).json({message: "Не все данные о товаре указаны"})
             }
 
-            await client.query("INSERT INTO products (product_name, product_description, product_features) VALUES($1, $2, $3, $4)", 
-                [product_name, product_description, product_features]
-            );
+            const product_info = await products.create({
+                product_name: product_name,
+                product_description: product_description
+            })
 
+            console.log(product_info.toJSON())
             return res.status(200).json({message:"Товар успешно добавлен"});
         }
         catch(err){
             console.error(err);
         }
-        finally{
-            client.release();
-        }
     }
     
-    async ChangeProductInfo(req, res){  //Ну это точно для админки
+    async ChangeProductInfo(req, res){ 
         const client = await pool.connect();
         const {product_name, product_description, product_features} = req.body;
         
@@ -48,7 +112,7 @@ class Product_Controllers{
 
     }
 
-    async DeleteProduct(req, res){  //И это тоже для админки?
+    async DeleteProduct(req, res){  
         const client = await pool.connect();
         const article = req.body.article;
 
@@ -86,10 +150,10 @@ class Product_Controllers{
             for (const file of req.files) {
                 // console.log(req.files);
                 // console.log(file.originalname)
-                // console.log(file.buffer)
+                console.log(file.buffer)
               await client.query(query, [file.originalname, file.buffer, file.mimetype, article]);
             }
-        
+
             await client.query('COMMIT');
             res.send('Файлы успешно загружены и сохранены в базе данных');
           } catch (err) {

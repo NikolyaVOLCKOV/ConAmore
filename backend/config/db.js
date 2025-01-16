@@ -1,13 +1,25 @@
 const { Pool } = require('pg');
+const { Sequelize } = require('sequelize')
 
+//Я мог изменить на локальную базу данных
 const pool = new Pool({
-    host: '92.255.78.34',
+    host: 'localhost',
     port: 5432,
     user: 'postgres',
     password: '1111',
-    database: 'con_amore'
+    database: 'Con_Amore'
 })
+
+const sequelize = new Sequelize({
+    host: 'localhost',
+    dialect: 'postgres',
+    username: 'postgres',
+    password: '1111',
+    database:'Con_Amore',
+    logging: console.log
+}) 
 
 module.exports = {
     pool,
+    sequelize,
 };
