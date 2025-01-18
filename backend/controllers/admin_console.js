@@ -1,24 +1,5 @@
 const { pool, sequelize } = require('../config/db.js');
-const { products, product_features } = require('../config/models/products.js');
-
-// Проверка соединения
-(async () => {
-    try {
-      await sequelize.authenticate();
-      console.log('Соединение с БД было успешно установлено(sequelize)');
-    } catch (e) {
-      console.log('Невозможно выполнить подключение к БД(sequelize): ', e);
-    }
-  })();
-
-// проверка синхронизации 
-sequelize.sync({ force: false })  // force: false означает, что таблицы не будут пересозданы
-  .then(() => {
-    console.log('Все модели синхронизированы с базой данных');
-  })
-  .catch((err) => {
-    console.error('Ошибка при синхронизации:', err);
-  });
+const { products, product_features } = require('../config/models.js');
 
 // TODO переписать всё с помощью ORM
 class Product_Controllers{
@@ -28,9 +9,9 @@ class Product_Controllers{
         const t = await sequelize.transaction()
 
         try{
-            if (!product_name || !product_description){
-                return res.status(404).json({message: "Не все данные о товаре указаны"})
-            }
+            // if (!product_name || !product_description){
+            //     return res.status(404).json({message: "Не все данные о товаре указаны"})
+            // }
 
             const product_info = await products.create(
                 {
@@ -40,16 +21,19 @@ class Product_Controllers{
                 { transaction: t }
             )
 
-            const product_features_info = await product_features.create(
-                {
-                    article: product_info.article,
-                    feature_value_id: feature_value_id
-                },
+            const productFeaturesData = feature_value_id.map(feature_value_id => ({
+                article: product_info.article,
+                feature_value_id: feature_value_id
+            }));
+            console.log(productFeaturesData)
+
+            const product_features_info = await product_features.bulkCreate(
+                productFeaturesData,
                 { transaction: t }
             )
 
             console.log(product_info.toJSON());
-            console.log(product_features_info.toJSON());
+            console.log(product_features_info);
 
             await t.commit()
             return res.status(200).json({message:"Товар успешно добавлен"});
