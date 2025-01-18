@@ -1,5 +1,6 @@
-const { pool, sequelize } = require('../config/db.js');
-const { products, product_features } = require('../config/models.js');
+const { sequelize } = require('../config/db.js');
+const { products, product_features, product_images } = require('../config/models.js');
+const { trace } = require('../routers/products.js');
 
 // TODO переписать всё с помощью ORM
 class Product_Controllers{
@@ -44,102 +45,123 @@ class Product_Controllers{
         }
     }
     
-    async ChangeProductInfo(req, res){ 
-        const client = await pool.connect();
-        const {product_name, product_description, product_features} = req.body;
+    async UpdateProductInfo(req, res){ 
+        const {product_name, product_description, article} = req.body;
+        const t = await sequelize.transaction();
         
         try{
+            const UpdatePI = await products.update(
+                {
+                    product_name: product_name, 
+                    product_description: product_description
+                },
+                {
+                    where:{article: article},
+                    transaction: t
+                }
+            )
 
-            await client.query("UPDATE products SET product_name = $1, product_description = $2, product_features = $3", 
-                [product_name, product_description, product_features]
-            );
-
+            // console.log(UpdatePI)
+            await t.commit();
             return res.status(200).json({message:"Данные о товаре успешно обновлены"});
         }
         catch(err){
+            await  t.rollback();
             console.error(err);
         }
-        finally{
-            client.release();
-        }
-
     }
 
     async DeleteProduct(req, res){  
-        const client = await pool.connect();
         const article = req.body.article;
+        const t = await sequelize.transaction();
 
         try{
-            if(!product_article){
+            if(!article){
                 return res.status(404).json({message:"Товар с таким артикулом не найден"})
             }
 
-            await client.query('DELETE FROM products WHERE article = $1',
-                [article]
-            );
+            const DeletefromPF = await product_features.destroy(
+                {
+                    where: {
+                        article: article
+                    },
+                    transaction: t
+                }
+            )
 
+            const DeletefromP = await products.destroy(
+                {
+                    where: {
+                        article: article
+                    },
+                    transaction: t
+                }
+            )
+
+            await t.commit();
             return res.status(200).json({message:"Товар успешно удалён"});
         }
         catch(err){
+            await t.rollback();
             console.error(err);
-        }
-        finally{
-            client.release();
         }
     }
     
     async AddImages(req, res){
-        const client = await pool.connect();
         const article = req.body.article;
+        const t = await sequelize.transaction();
+
         try {
-            await client.query('BEGIN');
+            console.log(req.files);
             
-            // Подготовка параметризованного запроса
-            const query = `
-              INSERT INTO product_images (image_name, image_buffer, image_type, product_article) VALUES($1,$2,$3,$4)
-            `;
-        
             // Обработка каждого файла в массиве
             for (const file of req.files) {
-                // console.log(req.files);
                 // console.log(file.originalname)
-                console.log(file.buffer)
-              await client.query(query, [file.originalname, file.buffer, file.mimetype, article]);
+                // console.log(file.buffer)
+                const AddImg = await product_images.create(
+                    {
+                        product_article: article,
+                        image_name: file.originalname,
+                        image_type:  file.mimetype,
+                        image_buffer: file.buffer,
+                    },
+                    { transaction: t }
+                )
             }
-
-            await client.query('COMMIT');
+ 
+            await t.commit()
             res.send('Файлы успешно загружены и сохранены в базе данных');
-          } catch (err) {
-            await client.query('ROLLBACK');
+          }
+          catch (err) {
+            await t.rollback();
             console.error(err);
             res.status(500).send('Ошибка при сохранении файлов');
-          } finally {
-            client.release();
-          }
+          } 
     }
 
     async ReturnImages(req, res){
-        const client = await pool.connect();
         const article = req.body.article;
 
         try{
-            const result = await client.query('SELECT image_buffer, image_type FROM product_images WHERE product_article = $1',
-                [article]
+            const ReturnImgs = await product_images.findAll(
+                {
+                    where:{
+                        product_article: article
+                    }
+                },
             )
-
-            const images = result.rows.map(row =>({
-                ImageData: row.image_buffer,
+            // console.log(ReturnImgs)
+            const images = ReturnImgs.map(row =>({
+                ImageData: row.image_buffer.toString('base64'),
                 ImageType: row.image_type
             }))
-            res.json(images)         
+
+            // console.log(images)
+            return res.status(200).json(images)       
         }
         catch(err){
             console.error(err)
         }
-        finally{
-            client.release()
-        }
-
     }
 
 }

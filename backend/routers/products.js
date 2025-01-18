@@ -11,7 +11,13 @@ const Auth_Middleware = require('../middlewares/auth_midlleware.js');
 
 router.post('/productfilter', Filter_Controllers.ProductFilter);
 router.post('/search', SearchControllers.SearchProduct);
+
 router.post('/addimage', upload.array('file', 10), AdminControllers.AddImages);
+router.get('/getimgs', AdminControllers.ReturnImages)
+
 router.post('/addproduct', AdminControllers.AddProduct)
+router.put('/updateproduct', AdminControllers.UpdateProductInfo)
+router.delete('/deleteproduct', AdminControllers.DeleteProduct)
+
 
 module.exports = router

@@ -19,7 +19,6 @@ const { DataTypes } = require('sequelize');
 //     console.error('Ошибка при синхронизации:', err);
 //   });
 
-// Определение модели 'products'
 const products = sequelize.define(
     'products',
     {
@@ -100,7 +99,6 @@ const features_ex = sequelize.define(
     }
 )
 
-// Определение модели 'product_features'
 const product_features = sequelize.define(
     'product_features',
     {
@@ -133,9 +131,49 @@ const product_features = sequelize.define(
     }
 );
 
+const product_images = sequelize.define(
+    'product_images',
+    {
+        product_article:{
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            references: {
+                model: products, // Связь с моделью 'products'
+                key: 'article',
+            },
+            onDelete: 'CASCADE', 
+            onUpdate: 'CASCADE',
+            primaryKey: true
+        },
+        image_id: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            primaryKey: true,
+            autoIncrement: true,
+        },
+        image_name: {
+            type: DataTypes.TEXT,
+            allowNull: false,
+        },
+        image_type: {
+            type: DataTypes.TEXT,
+            allowNull: false,
+        },
+        image_buffer: {
+            type: DataTypes.BLOB,
+            allowNull: false,
+        }
+    },
+    {
+        timestamps: false,
+        tableName: 'product_images'
+    }
+)
+
 module.exports = {
     products,
     product_features,
     features,
-    features_ex
+    features_ex,
+    product_images
 };
