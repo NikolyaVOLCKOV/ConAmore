@@ -9,7 +9,7 @@ const AdminControllers = require('../controllers/admin_console.js');
 
 const Auth_Middleware = require('../middlewares/auth_midlleware.js');
 
-router.post('/productfilter', Filter_Controllers.ProductFilter);
+router.get('/productfilter', Filter_Controllers.ProductFilter);
 router.post('/search', SearchControllers.SearchProduct);
 
 router.post('/addimage', upload.array('file', 10), AdminControllers.AddImages);

@@ -1,4 +1,5 @@
-const { pool } = require('../../config/db.js');
+const { pool, sequelize } = require('../../config/db.js');
+const { products, product_features, features_ex } = require('../../config/models.js');
 
 class FilterControlles{
 
@@ -25,8 +26,6 @@ class FilterControlles{
             client.release()
         }
     }
-
-
 }
 
 module.exports = new FilterControlles();

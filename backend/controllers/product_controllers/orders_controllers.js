@@ -1,48 +1,79 @@
-const { pool } = require('../../config/db.js');
+const { orders } = require('../../config/models.js');
+const { sequelize } = require('../../config/db.js');
+const { where } = require('sequelize');
 
 class OrdersControllers{
 
     async MakeOrder(req, res){
-        const client = await pool.connect();
         const user_id = req.id;
         const product_article = req.body.article;
+        const t = await sequelize.transaction();
 
         try{
-
-            await client.query('INSERT INTO orders (user_id, product_article VALUES($1, $2)',
-                [user_id, product_article]
+            const makeordr = await orders.create(
+                { 
+                    user_id: user_id,
+                    product_article: product_article
+                },
+                { transaction: t}
             )
 
+            await t.commit()
             return res.status(200).json({message:"Ваш заказ оформлен"})
         }
         catch(err){
+            await t.rollback()
             console.error(err);
-        }
-        finally{
-            client.release();
         }
     }
 
     async UpdateOrderStatus(req, res){
-        const client = await pool.connect();
-        const user_id = req.id;
-        const { product_article, status } = req.body;
+        const { product_article, status, user_id } = req.body;
+        const t = await sequelize.transaction()
 
         try{
-
-            await client.query('UPDATE orders SET status = $1 WHERE user_id = $2 AND product_article = $3',
-                [status, user_id, product_article]
+            const updateOstat = await orders.update(
+                {
+                    status: status,
+                    where:{
+                        user_id: user_id,
+                        product_article: product_article
+                    }
+                },
+                { transaction: t }
             )
 
-            return res.status(200).json({message:"Ваш заказ оформлен"})
+            await t.commit()
+            return res.status(200).json({message:`Статус заказа изменён на ${status}`})
         }
         catch(err){
+            await t.rollback()
             console.error(err);
         }
-        finally{
-            client.release();
-        }
+    }
 
+    async DeleteOrder(req, res){
+        const {user_id, product_article} = req.body
+        const t = await sequelize.transaction()
+
+        try{
+            const deleteO = await orders.destroy(
+                {
+                    where:{
+                        user_id: user_id,
+                        product_article: product_article
+                    },
+                    transaction: t
+                },
+            )
+
+            await t.commit()
+            return res.status(200).json({message:`Заказ ${product_article} удалён!`})
+        }
+        catch(err){
+            await t.rollback()
+            console.error(err);
+        }
     }
 
 }

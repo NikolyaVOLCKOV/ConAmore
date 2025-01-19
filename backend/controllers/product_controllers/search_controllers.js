@@ -1,25 +1,28 @@
-const { pool } = require('../../config/db.js');
+const { Op } = require('sequelize')
+const { products } = require('../../config/models.js');
 
 class SearchControllers{
 
     async SearchProduct(req, res){
-        const client = await pool.connect();
-        const inputData = req.body.inputData;
+        const inputData = req.body.inputData;   
 
         try{
-
-            const result = await client.query('SELECT product_name FROM products WHERE product_name ILIKE $1',
-                [inputData]
+            const searchp = await products.findAll(
+                {
+                    where:{
+                        product_name: {
+                            [Op.iLike]: `%${inputData}%`
+                        }
+                    }
+                }
             )
 
-            return res.status(200).json(result.rows)
+            return res.status(200).json(searchp)
         }
         catch(err){
             console.log(err)
         }
-        finally{
-            client.release()
-        }
+
     }
     
 }

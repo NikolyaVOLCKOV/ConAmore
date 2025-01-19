@@ -1,5 +1,6 @@
+const { use } = require('../routers/products.js');
 const {sequelize} = require('./db.js');
-const { DataTypes } = require('sequelize');
+const { DataTypes, DATE } = require('sequelize');
 
 (async () => {
     try {
@@ -18,30 +19,6 @@ const { DataTypes } = require('sequelize');
 //   .catch((err) => {
 //     console.error('Ошибка при синхронизации:', err);
 //   });
-
-const products = sequelize.define(
-    'products',
-    {
-        article: {
-            type: DataTypes.INTEGER,
-            allowNull: false,
-            primaryKey: true,
-            autoIncrement: true, // Используйте autoIncrement для первичного ключа
-        },
-        product_name: {
-            type: DataTypes.TEXT,  
-            allowNull: false
-        },
-        product_description: {
-            type: DataTypes.TEXT,  
-            allowNull: false
-        },
-    },
-    {
-        timestamps: false,
-        tableName: 'products'
-    }
-);
 
 const features = sequelize.define(
     'features',
@@ -98,6 +75,30 @@ const features_ex = sequelize.define(
         tableName: 'products'
     }
 )
+
+const products = sequelize.define(
+    'products',
+    {
+        article: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            primaryKey: true,
+            autoIncrement: true, // Используйте autoIncrement для первичного ключа
+        },
+        product_name: {
+            type: DataTypes.TEXT,  
+            allowNull: false
+        },
+        product_description: {
+            type: DataTypes.TEXT,  
+            allowNull: false
+        },
+    },
+    {
+        timestamps: false,
+        tableName: 'products'
+    }
+);
 
 const product_features = sequelize.define(
     'product_features',
@@ -170,10 +171,174 @@ const product_images = sequelize.define(
     }
 )
 
+const users = sequelize.define(
+    'users',
+    {
+        id:{
+            type: DataTypes.INTEGER,
+            autoIncrement: true,
+            allowNull: false,
+            primaryKey: true,
+        },
+
+        email:{
+            type: DataTypes.STRING ,
+            allowNull: false,
+        },
+        
+        password_hash:{
+            type: DataTypes.STRING ,
+            allowNull: false,
+        },
+
+        name:{
+            type: DataTypes.STRING ,
+            allowNull: false,
+        },
+
+        phone:{
+            type: DataTypes.STRING ,
+            allowNull: false,
+        },
+
+        created_at:{
+            type: DataTypes.DATE,
+            defaultValue: DataTypes.NOW,
+
+            allowNull: false,
+        },
+
+        role: {
+            type: DataTypes.STRING,
+            defaultValue: 'user',
+        },
+
+        confirm_reg: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: false
+        },
+
+    },
+    {
+        timestamps: false,
+        tableName: 'users'
+    }
+)
+
+const orders = sequelize.define(
+    'orders',
+    {
+        user_id:{
+            type: DataTypes.STRING,
+            references:{
+                model: users,
+                key: 'id'
+            },
+            primaryKey: true,
+            allowNull: false
+        },
+        product_article:{
+            type: DataTypes.STRING,
+            references:{
+                model: products,
+                key: 'article'
+            },
+            primaryKey: true,
+            allowNull: false
+        },
+        ordered_at: {
+            type: DataTypes.DATE,
+            defaultValue: DataTypes.NOW,
+            allowNull: false
+        },
+        status:{
+            type: DataTypes.DATE,
+            defaultValue: 'Оформлен',
+            allowNull: false
+        }
+
+    },
+    {
+        timestamps: false,
+        tableName: 'orders'
+    }
+)
+
+const favorites = sequelize.define(
+    'favorites',
+    {
+        article: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            references: {
+                model: products, 
+                key: 'article',
+            },
+            onDelete: 'CASCADE', // Укажите поведение при удалении
+            onUpdate: 'CASCADE',
+            primaryKey: true // Укажите поведение при обновлении
+        },
+        user_id: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            references: {
+                model: users, 
+                key: 'id'
+            },
+            onDelete: 'CASCADE', 
+            onUpdate: 'CASCADE',
+            primaryKey: true 
+        }
+    },
+    {
+        timestamps: false,
+        tableName: 'favorites'
+    }
+)
+
+const cart = sequelize.define(
+    'favorites',
+    {
+        article: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            references: {
+                model: products, 
+                key: 'article',
+            },
+            onDelete: 'CASCADE', // Укажите поведение при удалении
+            onUpdate: 'CASCADE',
+            primaryKey: true // Укажите поведение при обновлении
+        },
+        user_id: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            references: {
+                model: users, 
+                key: 'id'
+            },
+            onDelete: 'CASCADE', 
+            onUpdate: 'CASCADE',
+            primaryKey: true 
+        }
+    },
+    {
+        timestamps: false,
+        tableName: 'favorites'
+    }
+)
+
+
 module.exports = {
     products,
     product_features,
     features,
     features_ex,
-    product_images
+    product_images,
+    users,
+    orders,
+    favorites,
+    cart,
+
 };

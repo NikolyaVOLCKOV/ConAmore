@@ -1,40 +1,50 @@
-const  { pool } = require('../config/db.js');
+const  { pool, sequelize } = require('../config/db.js');
+const { users } = require('../config/models.js')
 const { PasswordHasher, GetData } = require('../utils/utils.js');
 const { SendEmail, SendEmailForgotPassword} = require ('../utils/mail_utils.js');
 const { MAIL_SECRET, ACESS_SECRET, REFRESH_SECRET } = require('../config/config.js');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
+const { use } = require('../routers/products.js');
+const { where } = require('sequelize');
 
 
 class Auth_and_Reg {
     // регистрация
     async Register(req, res){
-        const client = await pool.connect();
         const {name, phone, email, password} = req.body;
+        const t = await sequelize.transaction();
 
         try{
             const password_hash = await PasswordHasher(password);
 
-            const result = await client.query('INSERT INTO users (name, email, phone, password_hash) VALUES($1, $2, $3, $4) RETURNING id', 
-                [name, email, phone, password_hash]
-            );
-
-            const userId = result.rows[0].id;
+            const reg = await users.create(
+                {
+                    name: name,
+                    email: email,
+                    phone: phone,
+                    password_hash: password_hash,
+                },
+                { transaction: t}
+            )
+            
+            const userId = reg.id
+            await t.commit()
             return res.status(200).json({ id: userId, message: 'Пользователь зарегистрирован' });
         }
         catch(err){
+            if (t.finished !== 'commit') {
+                await t.rollback(); // Откатываем транзакцию, если она не была зафиксирована
+            }
             console.log("Ошибка при добавлении пользователя:", err);
             if (err.code === '23505') {
               res.status(409).json({ message: 'Имя пользователя уже существует!' });
             } else {
                 // TODO надо добавить обработчик ошибок
-              res.status(500).json({ message: "Ошибка сервера",
+                res.status(500).json({ message: "Ошибка сервера",
                 error: err
                });
             }
-        }
-        finally{
-            client.release()
         }
     }
 
@@ -51,8 +61,8 @@ class Auth_and_Reg {
     }
     // подтверждение регистрации
     async ConfirmRegister(req, res){
-        const client = await pool.connect();
         const verify_token = req.params.token;
+        const t = await sequelize.transaction();
 
         try{
             const decoded = jwt.verify(verify_token, MAIL_SECRET);
@@ -61,18 +71,24 @@ class Auth_and_Reg {
                 return res.status(403);
             }
 
-            await client.query('UPDATE users SET confirm_reg = true WHERE id = $1', 
-                [decoded.id]
+            const confreg = await users.update(
+                {
+                    confirm_reg: true,
+                    where:{
+                        id: decoded.id
+                    }
+                },
+                { transaction: t}
             )
+  
             const newToken = jwt.sign({username: decoded.id}, MAIL_SECRET, {expiresIn: '3s'})
             
+            await t.commit()
             res.redirect(`http://localhost:3000/success?newToken=${newToken}`) //ссылка должна быть другой 
         }
         catch(err){
+            await t.rollback()
             console.error(err)
-        }
-        finally{
-            client.release()
         }
     }
     // логин
@@ -154,20 +170,27 @@ class Auth_and_Reg {
         }
       
         const hashedPassword = await PasswordHasher(password);
-      
-        const result = await client.query('UPDATE users SET password_hash = $1 WHERE username = $2',
-            [hashedPassword, decoded.username]
-        );
-        
+        const fgpass = await users.create(
+            {
+                password_hash: hashedPassword,
+                where:{
+                    username: decoded.username
+                }
+            },
+            { transaction: t }
+        )
+
         if (result.rowCount === 0) {
           return res.status(404).json({ message: "Пользователь не найден" });
         }
-      
+
+        await t.commit()
         res.status(200).json({ message: "Пароль успешно изменён" });
         }
         catch(err){
-          console.error(err);
-          res.status(500).json({ message: 'Ошибка сервера' });
+            await t.rollback()
+            console.error(err);
+            res.status(500).json({ message: 'Ошибка сервера' });
         }
       };
     

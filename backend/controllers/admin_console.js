@@ -1,8 +1,6 @@
 const { sequelize } = require('../config/db.js');
 const { products, product_features, product_images } = require('../config/models.js');
-const { trace } = require('../routers/products.js');
 
-// TODO переписать всё с помощью ORM
 class Product_Controllers{
 
     async AddProduct(req, res){ 
@@ -10,9 +8,9 @@ class Product_Controllers{
         const t = await sequelize.transaction()
 
         try{
-            // if (!product_name || !product_description){
-            //     return res.status(404).json({message: "Не все данные о товаре указаны"})
-            // }
+            if (!product_name || !product_description || !feature_value_id){
+                return res.status(404).json({message: "Не все данные о товаре указаны"})
+            }
 
             const product_info = await products.create(
                 {
