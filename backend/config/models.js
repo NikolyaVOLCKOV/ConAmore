@@ -1,6 +1,5 @@
-const { use } = require('../routers/products.js');
 const {sequelize} = require('./db.js');
-const { DataTypes, DATE } = require('sequelize');
+const { DataTypes } = require('sequelize');
 
 (async () => {
     try {
@@ -19,6 +18,8 @@ const { DataTypes, DATE } = require('sequelize');
 //   .catch((err) => {
 //     console.error('Ошибка при синхронизации:', err);
 //   });
+//-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// Место моделей
 
 const features = sequelize.define(
     'features',
@@ -72,7 +73,7 @@ const features_ex = sequelize.define(
 
     {
         timestamps: false,
-        tableName: 'products'
+        tableName: 'features_ex'
     }
 )
 
@@ -325,10 +326,45 @@ const cart = sequelize.define(
     },
     {
         timestamps: false,
-        tableName: 'favorites'
+        tableName: 'cart'
     }
 )
+//-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+
+//-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// Место ассоциаций
+features.hasMany(features_ex, {foreignKey: 'feature_id', as: 'features_ex'})
+features_ex.belongsTo(features, {foreignKey: 'feature_id', as: 'features'})
+
+products.hasMany(product_features, { foreignKey: 'article', as: 'productFeatures' });
+features_ex.hasMany(product_features, { foreignKey: 'feature_value_id', as: 'productFeatures' });
+
+product_features.belongsTo(products, { foreignKey: 'article', as: 'product' });
+product_features.belongsTo(features_ex, { foreignKey: 'feature_value_id', as: 'featureEx' });
+
+products.hasMany(product_images, {foreignKey: 'product_article', sourceKey: "article", as:"product_images"});
+product_images.belongsTo(products, {foreignKey: 'product_article', sourceKey: "article", as:"products"});
+
+users.hasMany(orders, {foreignKey: 'user_id', sourceKey:"id", as:"orders"});
+products.hasOne(orders, {foreignKey: 'product_article', sourceKey:"article", as:"orders"})
+
+orders.belongsTo(products, {foreignKey: 'product_article', sourceKey:"article", as:"products"})
+orders.belongsTo(users, {foreignKey: 'user_id', sourceKey:"id", as:"users"});
+
+users.hasMany(favorites, {foreignKey: 'user_id', sourceKey:"id", as:"favorites"});
+products.hasOne(favorites, {foreignKey: 'article', as:"favorites"})
+
+favorites.belongsTo(products, {foreignKey: 'article', as:"products"})
+favorites.belongsTo(users, {foreignKey: 'user_id', sourceKey:"id", as:"users"});
+
+users.hasMany(cart, { foreignKey: 'user_id', sourceKey: "id", as: "cartItems" });
+products.hasOne(cart, { foreignKey: 'article', as: "cartItem" });
+
+cart.belongsTo(products, { foreignKey: 'article', as: "product" });
+cart.belongsTo(users, { foreignKey: 'user_id', sourceKey: "id", as: "user" });
+
+//-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 module.exports = {
     products,
