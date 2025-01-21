@@ -1,5 +1,5 @@
 const { sequelize } = require('../config/db.js');
-const { products, product_features, product_images } = require('../config/models.js');
+const { products, product_features, product_images, features, features_ex} = require('../config/models.js');
 
 class Product_Controllers{
 
@@ -159,6 +159,28 @@ class Product_Controllers{
         }
         catch(err){
             console.error(err)
+        }
+    }
+
+    async AddFeature(req, res){ 
+        const { feature_name } = req.body;
+        const t = await sequelize.transaction()
+
+        try{
+
+            const product_info = await features.create(
+                {
+                    feature_name: feature_name,
+                },
+                { transaction: t }
+            )
+
+            await t.commit()
+            return res.status(200).json({message:"Товар успешно добавлен"});
+        }
+        catch(err){
+            await  t.rollback();
+            console.error(err);
         }
     }
 

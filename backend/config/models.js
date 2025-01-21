@@ -11,13 +11,13 @@ const { DataTypes } = require('sequelize');
   })();
 
 // проверка синхронизации 
-// sequelize.sync({ force: false })  // force: false означает, что таблицы не будут пересозданы
-//   .then(() => {
-//     console.log('Все модели синхронизированы с базой данных');
-//   })
-//   .catch((err) => {
-//     console.error('Ошибка при синхронизации:', err);
-//   });
+sequelize.sync({ force: false })  // force: false означает, что таблицы не будут пересозданы
+  .then(() => {
+    console.log('Все модели синхронизированы с базой данных');
+  })
+  .catch((err) => {
+    console.error('Ошибка при синхронизации:', err);
+  });
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 // Место моделей
 
@@ -40,7 +40,7 @@ const features = sequelize.define(
 
     {
         timestamps: false,
-        tableName: 'products'
+        tableName: 'features'
     }
 )
 
@@ -299,7 +299,7 @@ const favorites = sequelize.define(
 )
 
 const cart = sequelize.define(
-    'favorites',
+    'cart',
     {
         article: {
             type: DataTypes.INTEGER,
@@ -334,32 +334,33 @@ const cart = sequelize.define(
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 // Место ассоциаций
-features.hasMany(features_ex, {foreignKey: 'feature_id', as: 'features_ex'})
+
+features.hasMany(features_ex, {foreignKey: 'feature_id', as: 'features_ex', onDelete: 'CASCADE'})
 features_ex.belongsTo(features, {foreignKey: 'feature_id', as: 'features'})
 
-products.hasMany(product_features, { foreignKey: 'article', as: 'productFeatures' });
-features_ex.hasMany(product_features, { foreignKey: 'feature_value_id', as: 'productFeatures' });
+products.hasMany(product_features, { foreignKey: 'article', as: 'productFeatures', onDelete: 'CASCADE' });
+features_ex.hasMany(product_features, { foreignKey: 'feature_value_id', as: 'productFeatures', onDelete: 'CASCADE' });
 
 product_features.belongsTo(products, { foreignKey: 'article', as: 'product' });
 product_features.belongsTo(features_ex, { foreignKey: 'feature_value_id', as: 'featureEx' });
 
-products.hasMany(product_images, {foreignKey: 'product_article', sourceKey: "article", as:"product_images"});
+products.hasMany(product_images, {foreignKey: 'product_article', sourceKey: "article", as:"product_images", onDelete: 'CASCADE'});
 product_images.belongsTo(products, {foreignKey: 'product_article', sourceKey: "article", as:"products"});
 
-users.hasMany(orders, {foreignKey: 'user_id', sourceKey:"id", as:"orders"});
-products.hasOne(orders, {foreignKey: 'product_article', sourceKey:"article", as:"orders"})
+users.hasMany(orders, {foreignKey: 'user_id', sourceKey:"id", as:"orders", onDelete: 'CASCADE'});
+products.hasOne(orders, {foreignKey: 'product_article', sourceKey:"article", as:"orders", onDelete: 'CASCADE'})
 
 orders.belongsTo(products, {foreignKey: 'product_article', sourceKey:"article", as:"products"})
 orders.belongsTo(users, {foreignKey: 'user_id', sourceKey:"id", as:"users"});
 
-users.hasMany(favorites, {foreignKey: 'user_id', sourceKey:"id", as:"favorites"});
-products.hasOne(favorites, {foreignKey: 'article', as:"favorites"})
+users.hasMany(favorites, {foreignKey: 'user_id', sourceKey:"id", as:"favorites", onDelete: 'CASCADE'});
+products.hasOne(favorites, {foreignKey: 'article', as:"favorites", onDelete: 'CASCADE'})
 
 favorites.belongsTo(products, {foreignKey: 'article', as:"products"})
 favorites.belongsTo(users, {foreignKey: 'user_id', sourceKey:"id", as:"users"});
 
-users.hasMany(cart, { foreignKey: 'user_id', sourceKey: "id", as: "cartItems" });
-products.hasOne(cart, { foreignKey: 'article', as: "cartItem" });
+users.hasMany(cart, { foreignKey: 'user_id', sourceKey: "id", as: "cartItems" , onDelete: 'CASCADE'});
+products.hasOne(cart, { foreignKey: 'article', as: "cartItem" , onDelete: 'CASCADE'});
 
 cart.belongsTo(products, { foreignKey: 'article', as: "product" });
 cart.belongsTo(users, { foreignKey: 'user_id', sourceKey: "id", as: "user" });

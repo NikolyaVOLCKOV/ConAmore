@@ -18,6 +18,7 @@ router.get('/getimgs', AdminControllers.ReturnImages)
 router.post('/addproduct', AdminControllers.AddProduct)
 router.put('/updateproduct', AdminControllers.UpdateProductInfo)
 router.delete('/deleteproduct', AdminControllers.DeleteProduct)
+router.post('/addfeature', AdminControllers.AddFeature)
 
 
 module.exports = router
