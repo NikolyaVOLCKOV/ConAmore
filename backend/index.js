@@ -1,7 +1,6 @@
 const express = require('express')
 const helmet = require('helmet');
 const cors = require('cors');
-
 const app = express();
 
 
@@ -37,7 +36,8 @@ app.use((req, res, next) => {
   app.use(helmet.noSniff())
 
 app.use('/auth', require("./routers/auth"))
-app.use('/products', require("./routers/products"))
+app.use('/products.admin', require("./routers/products/admin.js"))
+app.use('/products.user', require("./routers/products/user.js"))
 
 app.listen(5000, (err) => {
   if (err) {

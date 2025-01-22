@@ -2,11 +2,8 @@ const  { pool, sequelize } = require('../config/db.js');
 const { users } = require('../config/models.js')
 const { PasswordHasher, GetData } = require('../utils/utils.js');
 const { SendEmail, SendEmailForgotPassword} = require ('../utils/mail_utils.js');
-const { MAIL_SECRET, ACESS_SECRET, REFRESH_SECRET } = require('../config/config.js');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
-const { use } = require('../routers/products.js');
-const { where } = require('sequelize');
 
 
 class Auth_and_Reg {
@@ -65,7 +62,7 @@ class Auth_and_Reg {
         const t = await sequelize.transaction();
 
         try{
-            const decoded = jwt.verify(verify_token, MAIL_SECRET);
+            const decoded = jwt.verify(verify_token, process.env.MAIL_SECRET);
 
             if (!decoded || !decoded.id){
                 return res.status(403);
@@ -81,7 +78,7 @@ class Auth_and_Reg {
                 { transaction: t}
             )
   
-            const newToken = jwt.sign({username: decoded.id}, MAIL_SECRET, {expiresIn: '3s'})
+            const newToken = jwt.sign({username: decoded.id}, process.env.MAIL_SECRET, {expiresIn: '3s'})
             
             await t.commit()
             res.redirect(`http://localhost:3000/success?newToken=${newToken}`) //ссылка должна быть другой 
@@ -109,8 +106,8 @@ class Auth_and_Reg {
             const isPasswordMatch = await bcrypt.compare(password, bdData.password_hash);
 
             if(isPasswordMatch === true){
-                const refresh_token = jwt.sign({ id: bdData.id, confirm_reg: bdData.confirm_reg }, REFRESH_SECRET, { expiresIn: '7d' });
-                const acess_token = jwt.sign({ id: bdData.id, confirm_reg: bdData.confirm_reg }, ACESS_SECRET, { expiresIn: '1h' });
+                const refresh_token = jwt.sign({ id: bdData.id, confirm_reg: bdData.confirm_reg }, process.env.REFRESH_SECRET, { expiresIn: '7d' });
+                const acess_token = jwt.sign({ id: bdData.id, confirm_reg: bdData.confirm_reg }, process.env.ACESS_SECRET, { expiresIn: '1h' });
     
                 // console.log('Токены при логине:',"Acess:",acess_token, "Refresh:",refresh_token);
                 return res.status(200).json({
@@ -138,7 +135,7 @@ class Auth_and_Reg {
         const bdData = await GetData(username);
 
           try{
-            const forgotPassword_token = jwt.sign({username: username}, MAIL_SECRET, {expiresIn: '1h'});
+            const forgotPassword_token = jwt.sign({username: username}, process.env.MAIL_SECRET, {expiresIn: '1h'});
             await SendEmailForgotPassword(bdData.email);
             // console.log("письмо отправлено. Токен:", forgotPassword_token)
 
@@ -159,7 +156,7 @@ class Auth_and_Reg {
         const password = req.body.password;
       
         try{
-        const decoded = jwt.verify(token, MAIL_SECRET)
+        const decoded = jwt.verify(token, process.env.MAIL_SECRET)
       
         if (!decoded || !decoded.username) {
           return res.sendStatus(403).json({message:"Неверный токен"}); 

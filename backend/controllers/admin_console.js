@@ -168,7 +168,7 @@ class Product_Controllers{
 
         try{
 
-            const product_info = await features.create(
+            const featureName = await features.create(
                 {
                     feature_name: feature_name,
                 },
@@ -177,6 +177,121 @@ class Product_Controllers{
 
             await t.commit()
             return res.status(200).json({message:"Товар успешно добавлен"});
+        }
+        catch(err){
+            await  t.rollback();
+            console.error(err);
+        }
+    }
+
+    async UpdateFeature(req, res){ 
+        const { feature_name, feature_id } = req.body;
+        const t = await sequelize.transaction()
+
+        try{
+
+            const updateName = await features.update(
+                {
+                    feature_name: feature_name,
+                    where:{
+                        feature_id: feature_id
+                    }
+                },
+                { transaction: t }
+            )
+
+            await t.commit()
+            return res.status(200).json({message:"Характеристика успешно"});
+        }
+        catch(err){
+            await  t.rollback();
+            console.error(err);
+        }
+    }
+
+    async DeleteFeature(req, res){ 
+        const { feature_name, feature_id } = req.body;
+        const t = await sequelize.transaction()
+
+        try{
+
+            const deleteFet = await features.update(
+                {   where:{ feature_id: feature_id },
+                    transaction: t }
+            )
+
+            await t.commit()
+            return res.status(200).json({message:"Характеристика удалена"});
+        }
+        catch(err){
+            await  t.rollback();
+            console.error(err);
+        }
+    }
+
+    async AddExtendenFeature(req, res){ 
+        const { feature_ex_name, feature_id } = req.body;
+        const t = await sequelize.transaction()
+
+        try{
+
+            const addExFet = await features_ex.create(
+                {
+                    feature_value: feature_ex_name,
+                    feature_id: feature_id
+                },
+                { transaction: t }
+            )
+
+            await t.commit()
+            return res.status(200).json({message:"Расширенная характеристика добавлена"});
+        }
+        catch(err){
+            await  t.rollback();
+            console.error(err);
+        }
+    }
+
+    async UpdateExFeature(req, res){ 
+        const { feature_ex_name, feature_value_id } = req.body;
+        const t = await sequelize.transaction()
+
+        try{
+
+            const upExFet = await features_ex.update(
+                {
+                    feature_value: feature_ex_name,
+                    where:{
+                        feature_value_id: feature_value_id
+                    }
+                },
+                { transaction: t }
+            )
+
+            await t.commit()
+            return res.status(200).json({message:"Расширенная характеристика обнавлена"});
+        }
+        catch(err){
+            await  t.rollback();
+            console.error(err);
+        }
+    }
+
+    async DelExFeature(req, res){ 
+        const { feature_ex_name, feature_value_id } = req.body;
+        const t = await sequelize.transaction()
+
+        try{
+
+            const delExFet = await features_ex.update(
+                { 
+                    where: { feature_value_id: feature_value_id },
+                    transaction: t 
+                }
+            )
+
+            await t.commit()
+            return res.status(200).json({message:"Расширенная характеристика удалена"});
         }
         catch(err){
             await  t.rollback();

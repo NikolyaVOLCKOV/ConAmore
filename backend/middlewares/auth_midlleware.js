@@ -1,5 +1,4 @@
 const jwt = require('jsonwebtoken')
-const {ACESS_SECRET, REFRESH_SECRET} = require('../config/config.js');
 
 exports.autorizate_token = (req, res, next) => {
   const acessHeaders = req.headers['authorization']; 
@@ -12,7 +11,7 @@ exports.autorizate_token = (req, res, next) => {
   const acess_token = acessHeaders.split(' ')[1]
 //   console.log(acess_token, "Токен доступа")
 
-  jwt.verify(acess_token, ACESS_SECRET, (err, acessdata) => {
+  jwt.verify(acess_token, process.env.ACESS_SECRET, (err, acessdata) => {
     console.log('Данные из токена:', acessdata);
 
       if (err) {
@@ -40,7 +39,7 @@ exports.UpdateTokens = (req, res, next) => {
     const acess_token = acessHeaders.split(' ')[1]
     const refresh_token = refreshHeaders.split(' ')[1]
 
-    jwt.verify(acess_token, ACESS_SECRET, (err, acessdata) => {
+    jwt.verify(acess_token, process.env.ACESS_SECRET, (err, acessdata) => {
         if (!err) {
             req.id = acessdata.id;
             if (acessdata.confirm_reg === false) {
@@ -51,7 +50,7 @@ exports.UpdateTokens = (req, res, next) => {
             return next();
         }
         if (err && err.name === 'TokenExpiredError') {
-            jwt.verify(refresh_token, REFRESH_SECRET, (err, refreshData) => {
+            jwt.verify(refresh_token, process.env.REFRESH_SECRET, (err, refreshData) => {
                 
                 if (err && err.name === 'TokenExpiredError') {
                     console.log('Refresh токен не действителен!')
@@ -67,13 +66,13 @@ exports.UpdateTokens = (req, res, next) => {
     
                 const newAcessToken = jwt.sign(
                     { id: refreshData.id, confirm_reg: refreshData.confirm_reg },
-                    ACESS_SECRET,
+                    process.env.ACESS_SECRET,
                     { expiresIn: '1h' }
                 );
     
                 const newRefreshToken = jwt.sign(
                     { id: refreshData.id, confirm_reg: refreshData.confirm_reg },
-                    REFRESH_SECRET,
+                    process.env.REFRESH_SECRET,
                     { expiresIn: '7d' }
                 );
 
