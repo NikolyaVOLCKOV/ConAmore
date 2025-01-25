@@ -1,5 +1,6 @@
 const { Pool } = require('pg');
-const { Sequelize } = require('sequelize')
+const { Sequelize } = require('sequelize');
+require("dotenv").config();
 
 //Я мог изменить на локальную базу данных
 const pool = new Pool({

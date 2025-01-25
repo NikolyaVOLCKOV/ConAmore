@@ -8,7 +8,7 @@ const OrdersControllers = require('../../controllers/product_controllers/orders_
 
 router.post('/addimage', upload.array('file', 10), AdminControllers.AddImages);
 router.post('/addproduct', AdminControllers.AddProduct);
-router.put('/updateproduct', AdminControllers.UpdateProductInfo);
+router.put('/upproduct', AdminControllers.UpdateProductInfo);
 router.delete('/deleteproduct', AdminControllers.DeleteProduct);
 
 router.post('/addfeature', AdminControllers.AddFeature);
