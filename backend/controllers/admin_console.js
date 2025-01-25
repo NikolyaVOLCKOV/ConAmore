@@ -1,170 +1,302 @@
-const { pool, sequelize } = require('../config/db.js');
-const { products } = require('../config/models.js');
+const { sequelize } = require('../config/db.js');
+const { products, product_features, product_images, features, features_ex} = require('../config/models.js');
 
-// Проверка соединения
-(async () => {
-    try {
-      await sequelize.authenticate();
-      console.log('Соединение с БД было успешно установлено(sequelize)');
-    } catch (e) {
-      console.log('Невозможно выполнить подключение к БД(sequelize): ', e);
-    }
-  })();
-
-// проверка синхронизации 
-sequelize.sync({ force: false })  // force: false означает, что таблицы не будут пересозданы
-  .then(() => {
-    console.log('Все модели синхронизированы с базой данных');
-  })
-  .catch((err) => {
-    console.error('Ошибка при синхронизации:', err);
-  });
-
-// TODO переписать всё с помощью ORM
 class Product_Controllers{
 
-    // async AddProduct(req, res){ 
-    //     const client = await pool.connect();
-    //     const {product_name, product_description, product_features} = req.body;
-
-    //     try{
-
-    //         if (!product_name || !product_description || !product_features){
-    //             return res.status(404).json({message: "Не все данные о товаре указаны"})
-    //         }
-
-    //         await client.query("INSERT INTO products (product_name, product_description, product_features) VALUES($1, $2, $3)", 
-    //             [product_name, product_description, product_features]
-    //         );
-
-    //         return res.status(200).json({message:"Товар успешно добавлен"});
-    //     }
-    //     catch(err){
-    //         console.error(err);
-    //     }
-    //     finally{
-    //         client.release();
-    //     }
-    // }
-
     async AddProduct(req, res){ 
-        const {product_name, product_description} = req.body;
+        const {product_name, product_description, feature_value_id} = req.body;
+        const t = await sequelize.transaction()
 
         try{
-
-            if (!product_name || !product_description){
+            if (!product_name || !product_description || !feature_value_id){
                 return res.status(404).json({message: "Не все данные о товаре указаны"})
             }
 
-            const product_info = await products.create({
-                product_name: product_name,
-                product_description: product_description
-            })
+            const product_info = await products.create(
+                {
+                    product_name: product_name,
+                    product_description: product_description
+                },
+                { transaction: t }
+            )
 
-            console.log(product_info.toJSON())
+            const productFeaturesData = feature_value_id.map(feature_value_id => ({
+                article: product_info.article,
+                feature_value_id: feature_value_id
+            }));
+            console.log(productFeaturesData)
+
+            const product_features_info = await product_features.bulkCreate(
+                productFeaturesData,
+                { transaction: t }
+            )
+
+            console.log(product_info.toJSON());
+            console.log(product_features_info);
+
+            await t.commit()
             return res.status(200).json({message:"Товар успешно добавлен"});
         }
         catch(err){
+            await  t.rollback();
             console.error(err);
         }
     }
     
-    async ChangeProductInfo(req, res){ 
-        const client = await pool.connect();
-        const {product_name, product_description, product_features} = req.body;
+    async UpdateProductInfo(req, res){ 
+        const {product_name, product_description, article} = req.body;
+        const t = await sequelize.transaction();
         
         try{
+            const UpdatePI = await products.update(
+                {
+                    product_name: product_name, 
+                    product_description: product_description
+                },
+                {
+                    where:{article: article},
+                    transaction: t
+                }
+            )
 
-            await client.query("UPDATE products SET product_name = $1, product_description = $2, product_features = $3", 
-                [product_name, product_description, product_features]
-            );
-
+            // console.log(UpdatePI)
+            await t.commit();
             return res.status(200).json({message:"Данные о товаре успешно обновлены"});
         }
         catch(err){
+            await  t.rollback();
             console.error(err);
         }
-        finally{
-            client.release();
-        }
-
     }
 
     async DeleteProduct(req, res){  
-        const client = await pool.connect();
         const article = req.body.article;
+        const t = await sequelize.transaction();
 
         try{
-            if(!product_article){
+            if(!article){
                 return res.status(404).json({message:"Товар с таким артикулом не найден"})
             }
 
-            await client.query('DELETE FROM products WHERE article = $1',
-                [article]
-            );
+            const DeletefromPF = await product_features.destroy(
+                {
+                    where: {
+                        article: article
+                    },
+                    transaction: t
+                }
+            )
 
+            const DeletefromP = await products.destroy(
+                {
+                    where: {
+                        article: article
+                    },
+                    transaction: t
+                }
+            )
+
+            await t.commit();
             return res.status(200).json({message:"Товар успешно удалён"});
         }
         catch(err){
+            await t.rollback();
             console.error(err);
-        }
-        finally{
-            client.release();
         }
     }
     
     async AddImages(req, res){
-        const client = await pool.connect();
         const article = req.body.article;
+        const t = await sequelize.transaction();
+
         try {
-            await client.query('BEGIN');
+            console.log(req.files);
             
-            // Подготовка параметризованного запроса
-            const query = `
-              INSERT INTO product_images (image_name, image_buffer, image_type, product_article) VALUES($1,$2,$3,$4)
-            `;
-        
             // Обработка каждого файла в массиве
             for (const file of req.files) {
-                // console.log(req.files);
                 // console.log(file.originalname)
-                console.log(file.buffer)
-              await client.query(query, [file.originalname, file.buffer, file.mimetype, article]);
+                // console.log(file.buffer)
+                const AddImg = await product_images.create(
+                    {
+                        product_article: article,
+                        image_name: file.originalname,
+                        image_type:  file.mimetype,
+                        image_buffer: file.buffer,
+                    },
+                    { transaction: t }
+                )
             }
-
-            await client.query('COMMIT');
+ 
+            await t.commit()
             res.send('Файлы успешно загружены и сохранены в базе данных');
-          } catch (err) {
-            await client.query('ROLLBACK');
+          }
+          catch (err) {
+            await t.rollback();
             console.error(err);
             res.status(500).send('Ошибка при сохранении файлов');
-          } finally {
-            client.release();
-          }
+          } 
     }
 
     async ReturnImages(req, res){
-        const client = await pool.connect();
         const article = req.body.article;
 
         try{
-            const result = await client.query('SELECT image_buffer, image_type FROM product_images WHERE product_article = $1',
-                [article]
+            const ReturnImgs = await product_images.findAll(
+                {
+                    where:{
+                        product_article: article
+                    }
+                },
             )
-
-            const images = result.rows.map(row =>({
-                ImageData: row.image_buffer,
+            // console.log(ReturnImgs)
+            const images = ReturnImgs.map(row =>({
+                ImageData: row.image_buffer.toString('base64'),
                 ImageType: row.image_type
             }))
-            res.json(images)         
+
+            // console.log(images)
+            return res.status(200).json(images)       
         }
         catch(err){
             console.error(err)
         }
-        finally{
-            client.release()
-        }
+    }
 
+    async AddFeature(req, res){ 
+        const { feature_name } = req.body;
+        const t = await sequelize.transaction()
+
+        try{
+
+            const featureName = await features.create(
+                {
+                    feature_name: feature_name,
+                },
+                { transaction: t }
+            )
+
+            await t.commit()
+            return res.status(200).json({message:"Товар успешно добавлен"});
+        }
+        catch(err){
+            await  t.rollback();
+            console.error(err);
+        }
+    }
+
+    async UpdateFeature(req, res){ 
+        const { feature_name, feature_id } = req.body;
+        const t = await sequelize.transaction()
+
+        try{
+
+            const updateName = await features.update(
+                {
+                    feature_name: feature_name,
+                    where:{
+                        feature_id: feature_id
+                    }
+                },
+                { transaction: t }
+            )
+
+            await t.commit()
+            return res.status(200).json({message:"Характеристика успешно"});
+        }
+        catch(err){
+            await  t.rollback();
+            console.error(err);
+        }
+    }
+
+    async DeleteFeature(req, res){ 
+        const { feature_name, feature_id } = req.body;
+        const t = await sequelize.transaction()
+
+        try{
+
+            const deleteFet = await features.update(
+                {   where:{ feature_id: feature_id },
+                    transaction: t }
+            )
+
+            await t.commit()
+            return res.status(200).json({message:"Характеристика удалена"});
+        }
+        catch(err){
+            await  t.rollback();
+            console.error(err);
+        }
+    }
+
+    async AddExtendenFeature(req, res){ 
+        const { feature_ex_name, feature_id } = req.body;
+        const t = await sequelize.transaction()
+
+        try{
+
+            const addExFet = await features_ex.create(
+                {
+                    feature_value: feature_ex_name,
+                    feature_id: feature_id
+                },
+                { transaction: t }
+            )
+
+            await t.commit()
+            return res.status(200).json({message:"Расширенная характеристика добавлена"});
+        }
+        catch(err){
+            await  t.rollback();
+            console.error(err);
+        }
+    }
+
+    async UpdateExFeature(req, res){ 
+        const { feature_ex_name, feature_value_id } = req.body;
+        const t = await sequelize.transaction()
+
+        try{
+
+            const upExFet = await features_ex.update(
+                {
+                    feature_value: feature_ex_name,
+                    where:{
+                        feature_value_id: feature_value_id
+                    }
+                },
+                { transaction: t }
+            )
+
+            await t.commit()
+            return res.status(200).json({message:"Расширенная характеристика обнавлена"});
+        }
+        catch(err){
+            await  t.rollback();
+            console.error(err);
+        }
+    }
+
+    async DelExFeature(req, res){ 
+        const { feature_ex_name, feature_value_id } = req.body;
+        const t = await sequelize.transaction()
+
+        try{
+
+            const delExFet = await features_ex.update(
+                { 
+                    where: { feature_value_id: feature_value_id },
+                    transaction: t 
+                }
+            )
+
+            await t.commit()
+            return res.status(200).json({message:"Расширенная характеристика удалена"});
+        }
+        catch(err){
+            await  t.rollback();
+            console.error(err);
+        }
     }
 
 }

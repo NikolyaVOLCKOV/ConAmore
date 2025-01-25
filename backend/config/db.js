@@ -1,22 +1,23 @@
 const { Pool } = require('pg');
-const { Sequelize } = require('sequelize')
+const { Sequelize } = require('sequelize');
+require("dotenv").config();
 
 //Я мог изменить на локальную базу данных
 const pool = new Pool({
-    host: 'localhost',
-    port: 5432,
-    user: 'postgres',
-    password: '1111',
-    database: 'Con_Amore'
+    host: process.env.HOST,
+    port: process.env.PORT,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME
 })
 
 // Это для того чтобы sequelize работал именно с нашкй бд
 const sequelize = new Sequelize({
-    host: 'localhost',
+    host: process.env.HOST,
     dialect: 'postgres',
-    username: 'postgres',
-    password: '1111',
-    database:'Con_Amore',
+    username: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME,
     logging: console.log
 }) 
 

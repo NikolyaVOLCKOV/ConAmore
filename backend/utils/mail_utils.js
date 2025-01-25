@@ -1,6 +1,5 @@
 const nodemailer = require("nodemailer")
 const jwt = require('jsonwebtoken')
-const {MAIL_SECRET} = require('../config/config.js')
 
 const transporter = nodemailer.createTransport({
     host: "smtp.gmail.com",
@@ -13,7 +12,7 @@ const transporter = nodemailer.createTransport({
   })
 
 async function SendEmail(email, username, id) {
-    const verify_token = jwt.sign({username: username, id: id}, MAIL_SECRET, {expiresIn: '9h'})
+    const verify_token = jwt.sign({username: username, id: id}, process.env.MAIL_SECRET, {expiresIn: '9h'})
     const info = await transporter.sendMail({
       from: 'petrlensin011@gmail.com', // Надо изменить почту отправителя
       to: email, // list of receivers

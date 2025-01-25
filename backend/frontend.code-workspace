@@ -12,5 +12,8 @@
 			"name": "ТЗ",
 			"path": "../ТЗ"
 		}
-	]
+	],
+	"settings": {
+		"liveServer.settings.multiRootWorkspaceName": "frontend"
+	}
 }
